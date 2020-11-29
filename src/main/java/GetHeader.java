@@ -16,10 +16,10 @@ public class GetHeader {
   private int commentLength = 2048;
   private String comment;
 
-  private List<String> data = new ArrayList<String>();
+  private List<String> data = new ArrayList<>();
 
   // Сюда пишем инструкции
-  List<Instruction> instructions = new ArrayList<Instruction>();
+  List<Instruction> instructions = new ArrayList<>();
 
   public GetHeader(byte[] buffer) {
 

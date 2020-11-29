@@ -3,21 +3,19 @@ import java.nio.ByteBuffer;
 public class Instruction {
 
   static int index = 0;
-  int shift;
 
   public Instruction(byte[] commands) {
     while (index < commands.length) {
       writeCommand(commands);
       System.out.println();
     }
-
   }
 
   private void writeCommand(byte[] commands) {
     byte op;
     byte enc;
 
-    op = (byte) (commands[index] & 0xff);;
+    op = (byte) (commands[index] & 0xff);
     index += writeOperation(op, commands);
     if (Commands.getOctal(op) == 1) {
       enc = (byte) (commands[index]  & 0xff);
@@ -61,37 +59,15 @@ public class Instruction {
   }
 
   int writeDir(int type, byte op, byte[] commands) {
-    int param = 0;
-    short otherParam = 0;
-
-    byte p1;
-    byte p2;
-
-    byte p3;
-    byte p4;
+    int param;
+    short otherParam;
 
    if (type == 2 && Commands.bool[op] == 0) {
-     p1 = commands[index];
-     p2 = commands[index + 1];
-     p3 = commands[index + 2];
-     p4 = commands[index + 3];
-     byte[] params = { p1, p2, p3, p4 };
-     ByteBuffer wrapped = ByteBuffer.wrap(params); // big-endian by default
-     param = wrapped.getInt();
-
-//     param = commands[index];
-//     param = Integer.reverseBytes(param);
+     param = getInt(commands, index);
      System.out.print("%" + param + " ");
      return 4;
    } else if (type == 2 && Commands.bool[op] == 1) {
-     p1 = commands[index];
-     p2 = commands[index + 1];
-     byte[] arr = { p1, p2 };
-     ByteBuffer wrapped = ByteBuffer.wrap(arr); // big-endian by default
-     otherParam = wrapped.getShort();
-
-//     param = commands[index];
-//     param = Integer.reverseBytes(param);
+     otherParam = getShort(commands, index);
      System.out.print("%" + otherParam + " ");
      return 2;
    }
@@ -100,34 +76,34 @@ public class Instruction {
 
   int writeOther(byte op, byte[] commands) {
 
-    byte p1;
-    byte p2;
-
-    byte p3;
-    byte p4;
-
     short param;
-    int secondParam = commands[index];
+    int secondParam;
 
     if (op == 1) {
-      p1 = commands[index];
-      p2 = commands[index + 1];
-      p3 = commands[index + 2];
-      p4 = commands[index + 3];
-      byte[] params = { p1, p2, p3, p4 };
-      ByteBuffer wrapped = ByteBuffer.wrap(params); // big-endian by default
-      secondParam = wrapped.getInt();
+      secondParam = getInt(commands, index);
       System.out.print("%" + secondParam + " ");
       return 4;
     } else if (op == 9 || op == 12 || op == 15) {
-      p1 = commands[index];
-      p2 = commands[index + 1];
-      byte[] arr = { p1, p2 };
-      ByteBuffer wrapped = ByteBuffer.wrap(arr); // big-endian by default
-      param = wrapped.getShort();
+      param = getShort(commands, index);
       System.out.print("%" + param + " ");
       return 2;
     }
     return 0;
+  }
+
+  private short getShort(byte[] commands, int index) {
+    byte b1 = commands[index];
+    byte b2 = commands[index + 1];
+    byte[] arr = { b1, b2 };
+    return ByteBuffer.wrap(arr).getShort(); // big-endian by default
+  }
+
+  private int getInt(byte[] commands, int index) {
+    byte b1 = commands[index];
+    byte b2 = commands[index + 1];
+    byte b3 = commands[index + 2];
+    byte b4 = commands[index + 3];
+    byte[] arr = { b1, b2, b3, b4 };
+    return ByteBuffer.wrap(arr).getInt(); // big-endian by default
   }
 }
