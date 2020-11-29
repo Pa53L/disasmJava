@@ -1,3 +1,5 @@
+import java.nio.ByteBuffer;
+
 public class Instruction {
 
   static int index = 0;
@@ -43,13 +45,13 @@ public class Instruction {
   }
 
   private int writeParam(int type, byte op, byte[] commands) {
-    long param = 0;
+    int param = 0;
     if (type == 1) {
       param = commands[index];
       System.out.print("r" + param + " ");
       return 1;
     } else if (type == 3) {
-      param = Integer.reverseBytes((int) param);
+      param = Integer.reverseBytes(param);
       System.out.print(":" + param + " ");
       return 2;
     } else if (type == 2) {
@@ -59,146 +61,73 @@ public class Instruction {
   }
 
   int writeDir(int type, byte op, byte[] commands) {
-    long param = 0;
+    int param = 0;
+    short otherParam = 0;
+
+    byte p1;
+    byte p2;
+
+    byte p3;
+    byte p4;
 
    if (type == 2 && Commands.bool[op] == 0) {
-     param = commands[index];
-     param = Integer.reverseBytes((int) param);
+     p1 = commands[index];
+     p2 = commands[index + 1];
+     p3 = commands[index + 2];
+     p4 = commands[index + 3];
+     byte[] params = { p1, p2, p3, p4 };
+     ByteBuffer wrapped = ByteBuffer.wrap(params); // big-endian by default
+     param = wrapped.getInt();
+
+//     param = commands[index];
+//     param = Integer.reverseBytes(param);
      System.out.print("%" + param + " ");
      return 4;
    } else if (type == 2 && Commands.bool[op] == 1) {
-     param = commands[index];
-     param = Integer.reverseBytes((int)param);
-     System.out.print("%" + param + " ");
+     p1 = commands[index];
+     p2 = commands[index + 1];
+     byte[] arr = { p1, p2 };
+     ByteBuffer wrapped = ByteBuffer.wrap(arr); // big-endian by default
+     otherParam = wrapped.getShort();
+
+//     param = commands[index];
+//     param = Integer.reverseBytes(param);
+     System.out.print("%" + otherParam + " ");
      return 2;
    }
     return 0;
   }
 
   int writeOther(byte op, byte[] commands) {
+
+    byte p1;
+    byte p2;
+
+    byte p3;
+    byte p4;
+
     short param;
     int secondParam = commands[index];
 
     if (op == 1) {
-//      secondParam = Integer.reverseBytes(commands[index]);
+      p1 = commands[index];
+      p2 = commands[index + 1];
+      p3 = commands[index + 2];
+      p4 = commands[index + 3];
+      byte[] params = { p1, p2, p3, p4 };
+      ByteBuffer wrapped = ByteBuffer.wrap(params); // big-endian by default
+      secondParam = wrapped.getInt();
       System.out.print("%" + secondParam + " ");
       return 4;
     } else if (op == 9 || op == 12 || op == 15) {
-      param = commands[index];
-      param = Short.reverseBytes(param);
+      p1 = commands[index];
+      p2 = commands[index + 1];
+      byte[] arr = { p1, p2 };
+      ByteBuffer wrapped = ByteBuffer.wrap(arr); // big-endian by default
+      param = wrapped.getShort();
       System.out.print("%" + param + " ");
       return 2;
     }
     return 0;
   }
 }
-
-//  int i = 0;
-//    while (i < commands.length) {
-//    int shift = writeCommand(commands, i);
-//    System.out.println("i: " + i);
-//    i += shift;
-//    }
-//
-//    System.out.println("TOTAL READ: " + (nameLength + 16 + commentLength + champSize));
-//    System.out.println("FILE SIZE: " + buffer.length);
-//    }
-//
-//    int writeCommand(byte[] commands, int i) {
-//    // i - file_data->index
-//    int tmp = i;
-//    int shift = 1; //enc
-//    int index = commands[i]; //op
-//
-//    tmp += writeOperation(index, commands);
-//    System.out.println("I after WOP: " + i);
-//    if (Commands.getOctal(i - 1) == 1) {
-//    shift = commands[i++];
-//    if (((shift & 0b11000000) >> 6) != 0) {
-//    System.out.println(" >>6");
-//    tmp += writeParam((shift & 0b11000000) >> 6, index, commands);
-//    }
-//    if (((shift & 0b11000000) >> 4) != 0) {
-//    System.out.println(" >>4");
-//    tmp += writeParam((shift & 0b11000000) >> 6, index, commands);
-//    }
-//    if (((shift & 0b11000000) >> 2) != 0) {
-//    System.out.println(" >>2");
-//    tmp += writeParam((shift & 0b11000000) >> 6, index, commands);
-//    }
-//    }
-//    else {
-////      i += writeZjimpFork(index, commands);
-//    if (index == 1) {
-//    i += 4;
-//    } else if (index == 10 || index == 3 || index == 16) {
-//    i += 2;
-//    } else tmp += 0;
-//    }
-//    System.out.println();
-//
-////    String command = "";
-////    if (commands[i] > 0 && commands[i] < 17) {
-////      command += Commands.getCommands(commands[i]) + "  ";
-////    }
-////    while (i < commands.length && (commands[i] <= 0 || commands[i] > 16)) {
-////      System.out.println("ARGUMENTS ARE: " + commands[i] + "  " + i);
-////      i++;
-////      if (Commands.getOctal(i - 1) == 1) {
-////        int encode = commands[i++];
-////        if ((commands[i] & 0b11000000) >> 6 != 0) {
-////          i +=
-////        }
-////      }
-////      shift++;
-////      i++;
-////    }
-////    System.out.println(command);
-//    return tmp - i;
-//    }
-//
-//    int writeParam(int type, int shift, byte[] commands) {
-//    long param = 0;
-//    if (type == 0b01) { //reg
-//    System.out.print("r" + param + type + " ");
-//    return 1;
-//    } else if (type == 0b10) { // indir
-//    param = (short) param << 0 | (short) param << 8;
-//    System.out.println(":" + param + " ");
-//    return 2;
-//    } else if (type == 0b11) { // dir
-//    return writeDir(type, shift, commands);
-//    }
-//    return 0;
-//    }
-//
-//    int writeDir(int type, int shift, byte[] commands) {
-//    long param = 0;
-//    if (Commands.bool[shift] ==  0) {
-//
-//    return 4;
-//    } else if (Commands.bool[shift] == 1) {
-//    return 2;
-//    }
-//    return 0;
-//    }
-//
-//    int writeOperation(int index, byte[] commands) {
-//    if (index > 0 && index < 17) {
-//    System.out.println("ARGUMENTS ARE: " + commands[index] + "  " + index);
-//    }
-//    return 1;
-//    }
-//
-////  private static byte[] copyFirstFiveFieldsOfArrayUsingSystem(byte[] source) {
-////    if(source.length > 5){
-////      int[] temp=new int[5];
-////      System.arraycopy(source, 0, temp, 0, 5);
-////      return temp;
-////    }else{
-////      int[] temp=new int1;
-////      System.arraycopy(source, 0, temp, 0, source.length);
-////      return temp;
-////    }
-////
-////  }
