@@ -1,14 +1,39 @@
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Instruction {
+
+  List<String> instructions = new ArrayList<>();
+  String instruction = "";
+
+
 
   static int index = 0;
 
   public Instruction(byte[] commands) {
     while (index < commands.length) {
       writeCommand(commands);
-      System.out.println();
+//      System.out.println();
+      instruction = instruction.trim();
+      String[] arr = instruction.split(" ");
+      for (int i = 0; i < arr.length; i++) {
+        if (i != 0 && i < arr.length - 1) {
+          arr[i] += ",";
+        }
+      }
+      instruction = String.join(" ", arr);
+      instructions.add(instruction);
+      instruction = "";
     }
+    for (int i = 0; i < instructions.size(); i ++) {
+      System.out.println(instructions.get(i));
+    }
+  }
+
+  public List<String> getInstructions() {
+    return instructions;
   }
 
   private void writeCommand(byte[] commands) {
@@ -37,7 +62,8 @@ public class Instruction {
 
   private int writeOperation(byte op, byte[] commands) {
     if (op > 0 && op < 17) {
-      System.out.print(Commands.getCommands(op) + "  ");
+//      System.out.print(Commands.getCommands(op) + "  ");
+      instruction += Commands.getCommands(op) + " ";
     }
     return 1;
   }
@@ -46,11 +72,13 @@ public class Instruction {
     int param = 0;
     if (type == 1) {
       param = commands[index];
-      System.out.print("r" + param + " ");
+//      System.out.print("r" + param + " ");
+      instruction += "r" + param + " ";
       return 1;
     } else if (type == 3) {
       param = Integer.reverseBytes(param);
-      System.out.print(":" + param + " ");
+//      System.out.print(":" + param + " ");
+      instruction += ":" + param + " ";
       return 2;
     } else if (type == 2) {
       return writeDir(type, op, commands);
@@ -64,11 +92,13 @@ public class Instruction {
 
    if (type == 2 && Commands.bool[op] == 0) {
      param = getInt(commands, index);
-     System.out.print("%" + param + " ");
+//     System.out.print("%" + param + " ");
+     instruction += "%" + param + " ";
      return 4;
    } else if (type == 2 && Commands.bool[op] == 1) {
      otherParam = getShort(commands, index);
-     System.out.print("%" + otherParam + " ");
+//     System.out.print("%" + otherParam + " ");
+     instruction += "%" + otherParam + " ";
      return 2;
    }
     return 0;
@@ -81,11 +111,13 @@ public class Instruction {
 
     if (op == 1) {
       secondParam = getInt(commands, index);
-      System.out.print("%" + secondParam + " ");
+//      System.out.print("%" + secondParam + " ");
+      instruction += "%" + secondParam + " ";
       return 4;
     } else if (op == 9 || op == 12 || op == 15) {
       param = getShort(commands, index);
-      System.out.print("%" + param + " ");
+//      System.out.print("%" + param + " ");
+      instruction += "%" + param + " ";
       return 2;
     }
     return 0;
