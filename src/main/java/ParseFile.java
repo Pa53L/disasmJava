@@ -23,6 +23,10 @@ public class ParseFile {
       this.nameLength = Integer.parseInt(properties.getProperty("name.length"));
       this.commentLength = Integer.parseInt(properties.getProperty("comment.length"));
       this.magicExec = Integer.parseInt(properties.getProperty("magic.exec"));
+      if (buffer.length < (nameLength + commentLength + 20)) {
+        System.out.println("File is too short.");
+        System.exit(0);
+      }
       /*
       *** Reading and checking exec
        */
@@ -89,10 +93,6 @@ public class ParseFile {
       for (String s : parsedFile) {
         System.out.println(s);
       }
-
-
-//      GetHeader header = new GetHeader(buffer);
-//      checkParams(header);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -129,19 +129,5 @@ public class ParseFile {
   public List<String> getParsedFile() {
     return parsedFile;
   }
-
-
-
-//  public int getNameLength() {
-//    return nameLength;
-//  }
-//
-//  public int getCommentLength() {
-//    return commentLength;
-//  }
-//
-//  public int getMagicExec() {
-//    return magicExec;
-//  }
 
 }
