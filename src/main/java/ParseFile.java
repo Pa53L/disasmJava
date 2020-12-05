@@ -37,9 +37,6 @@ public class ParseFile {
        */
       byte[] nameInBytes = new byte[this.nameLength]; // name
       int notNull = 0;
-      while (nameInBytes[notNull] != 0) {
-        notNull++;
-      }
       System.arraycopy(buffer, 4, nameInBytes, 0, this.nameLength);
       while (nameInBytes[notNull] != 0) {
         notNull++;
